@@ -292,10 +292,19 @@
         </button>
 
         <div class="success-hero">
-          <div class="success-hero__ring" aria-hidden="true">
-            <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
-              <circle class="success-icon__circle" cx="18" cy="18" r="14" transform="rotate(-90 18 18)" stroke="white" stroke-width="2.5" />
-              <path class="success-icon__check" d="M11.5 18.5 L16 23 L24.5 13.5" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+          <!-- Book-opening icon: right page starts folded over left (looks
+               like a closed book), then unfolds along the spine when the
+               modal opens. -->
+          <div class="success-hero__ring success-hero__ring--book" aria-hidden="true">
+            <svg class="book-icon" width="40" height="40" viewBox="0 0 24 24" fill="none">
+              <path class="book-icon__left"
+                    d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"
+                    stroke="white" stroke-width="1.6"
+                    stroke-linejoin="round" stroke-linecap="round" />
+              <path class="book-icon__right"
+                    d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"
+                    stroke="white" stroke-width="1.6"
+                    stroke-linejoin="round" stroke-linecap="round" />
             </svg>
           </div>
           <div class="success-hero__copy">
@@ -368,10 +377,19 @@
         </button>
 
         <div class="success-hero">
-          <div class="success-hero__ring" aria-hidden="true">
-            <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
-              <circle class="success-icon__circle" cx="18" cy="18" r="14" transform="rotate(-90 18 18)" stroke="white" stroke-width="2.5" />
-              <path class="success-icon__check" d="M11.5 18.5 L16 23 L24.5 13.5" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+          <!-- Book-closing icon: right page starts flat (open book), then
+               folds over the left page along the spine — the inverse of
+               the leverage / "Position Opened" animation. -->
+          <div class="success-hero__ring success-hero__ring--book" aria-hidden="true">
+            <svg class="book-icon book-icon--closing" width="40" height="40" viewBox="0 0 24 24" fill="none">
+              <path class="book-icon__left"
+                    d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"
+                    stroke="white" stroke-width="1.6"
+                    stroke-linejoin="round" stroke-linecap="round" />
+              <path class="book-icon__right"
+                    d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"
+                    stroke="white" stroke-width="1.6"
+                    stroke-linejoin="round" stroke-linecap="round" />
             </svg>
           </div>
           <div class="success-hero__copy">
