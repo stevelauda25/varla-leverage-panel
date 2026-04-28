@@ -1,0 +1,1213 @@
+/* =========================================================================
+   Design tokens (shared with the other Varla explorations)
+   ========================================================================= */
+:root {
+  --base-special: #091325;
+  --foreground-primary: #070e1d;
+  --primary-special: #0c1931;
+  --page-bg: #04081a;
+  --field-bg: #061022;
+
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.5);
+  --text-tertiary: rgba(255, 255, 255, 0.3);
+
+  --primary-300: #8cb7ed;
+  --brand-blue-300: #7aa9ff;
+  --accent-green: #c3e382;
+  --accent-red: #e14747;
+
+  --alpha-white-700: rgba(255, 255, 255, 0.2);
+  --alpha-white-800: rgba(255, 255, 255, 0.1);
+  --alpha-white-900: rgba(255, 255, 255, 0.05);
+
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
+  --font-serif: "EB Garamond", "Times New Roman", serif;
+
+  --text-brand: #00051c;
+}
+
+/* =========================================================================
+   Reset / base
+   ========================================================================= */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; height: 100%; }
+
+body {
+  font-family: var(--font-sans);
+  background: var(--page-bg);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+input {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  padding: 0;
+}
+
+img { display: block; max-width: 100%; }
+
+/* =========================================================================
+   Page wrapper — center the card
+   ========================================================================= */
+.page {
+  min-height: 100vh;
+  padding: 24px;
+  display: grid;
+  place-items: center;
+}
+
+/* =========================================================================
+   Card shell
+   ========================================================================= */
+.card {
+  width: 100%;
+  max-width: 460px;
+  background: var(--foreground-primary);
+  border: 1px solid var(--alpha-white-800);
+  border-radius: 6px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Each tab gets its own panel; only the active one is rendered. */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.panel[hidden] { display: none; }
+
+/* Wrapper around the form area inside the leverage panel — anchors the
+   loading overlay so it covers the form but leaves the action button
+   visible & live (label flips to "Processing..." while loading). */
+.panel__main {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Loading overlay — sits over .panel__main while the trade is "processing". */
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(7, 14, 29, 0.5);
+  display: grid;
+  place-items: center;
+  z-index: 5;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+.loading-overlay.is-active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* 12-spoke spinner; `steps(12)` rotates 30° per tick so the bright ray
+   advances one position at a time around the circle. */
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  animation: loading-tick 1s steps(12) infinite;
+  transform-origin: center;
+}
+
+@keyframes loading-tick {
+  to { transform: rotate(360deg); }
+}
+
+/* =========================================================================
+   Segmented tabs (Leverage position / Exit position)
+   ========================================================================= */
+.tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  background: #0e1c3a;
+  border: 0.8px solid var(--alpha-white-800);
+  border-radius: 6px;
+}
+
+.tab {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 16px;
+  border-radius: 2px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--text-secondary);
+  border: 0.6px solid transparent;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+
+.tab:hover {
+  color: var(--text-primary);
+}
+
+.tab.is-active {
+  color: var(--text-primary);
+  background: var(--alpha-white-700);
+  border-color: var(--alpha-white-800);
+}
+
+/* =========================================================================
+   Market details card
+   ========================================================================= */
+.market {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 18px;
+  background: var(--alpha-white-900);
+  border: 0.8px solid var(--alpha-white-800);
+  border-radius: 6px;
+}
+
+.market__thumb {
+  width: 41px;
+  height: 41px;
+  flex-shrink: 0;
+  object-fit: cover;
+  border-radius: 2px;
+}
+
+.market__info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.market__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.48px;
+  text-transform: uppercase;
+  line-height: 1.35;
+}
+
+/* Mono caption used standalone (Exit panel) or inside .market__meta
+   (Leverage panel). Defining the type here keeps both contexts consistent. */
+.market__source {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.48px;
+  text-transform: uppercase;
+  line-height: 1.35;
+  color: var(--text-secondary);
+}
+.market__delta  { color: var(--brand-blue-300); }
+
+.market__title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Compact variant for the Exit panel: title above meta, side tag on the
+   right. Items align center horizontally instead of starting at the top. */
+.market--compact { align-items: center; }
+.market--compact .market__info { gap: 6px; }
+
+/* Square pill that shows the side (YES = green, NO = red) on the
+   compact market card. */
+.side-tag {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: 2px;
+  border: 0.8px solid var(--alpha-white-900);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  letter-spacing: 0.56px;
+  line-height: 1.3;
+}
+.side-tag--yes {
+  background: rgba(195, 227, 130, 0.2);
+  color: var(--accent-green);
+}
+.side-tag--no {
+  background: rgba(225, 71, 71, 0.2);
+  color: var(--accent-red);
+}
+
+/* Smaller side tag used inside success summary rows so the row keeps
+   roughly the same rhythm as plain-text rows above and below it.
+   Switches to Inter Medium 10px to match the Figma summary spec. */
+.side-tag--sm {
+  padding: 4px 8px;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 10px;
+  letter-spacing: 0.4px;
+}
+
+/* =========================================================================
+   YES / NO side buttons
+   ========================================================================= */
+.side-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.side-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: 2px;
+  border: 0.8px solid var(--alpha-white-900);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.56px;
+  line-height: 1.3;
+  background: transparent;
+  color: var(--text-tertiary);
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+
+.side-btn:hover {
+  color: var(--text-primary);
+  border-color: var(--alpha-white-800);
+}
+
+/* Active YES — green tinted */
+.side-btn--yes.is-active {
+  background: rgba(195, 227, 130, 0.2);
+  color: var(--accent-green);
+}
+
+/* Active NO — red tinted (parallel to YES's green) */
+.side-btn--no.is-active {
+  background: rgba(225, 71, 71, 0.2);
+  color: var(--accent-red);
+}
+
+/* =========================================================================
+   Amount card (label row + input + percent presets)
+   ========================================================================= */
+.amount-card {
+  position: relative;
+  padding: 6px;
+  background: var(--primary-special);
+  border: 1px solid var(--alpha-white-900);
+  border-radius: 4px;
+  box-shadow: inset 0 0 2px 2px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.amount-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 12px 0;
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.amount-card__label  { color: var(--text-primary); }
+.amount-card__wallet {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--accent-green);
+  white-space: nowrap;
+}
+
+.amount-card__field {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 45px;
+  padding: 12px;
+  background: var(--field-bg);
+  border-radius: 2px;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    inset 0 0 2px 1.5px rgba(0, 0, 0, 0.08);
+}
+
+.amount-card__token {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.amount-card__token-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.amount-card__token-name {
+  font-size: 16px;
+  line-height: 1.3;
+  color: var(--text-primary);
+}
+
+.amount-card__divider {
+  width: 1px;
+  height: 19px;
+  background: var(--alpha-white-800);
+  flex-shrink: 0;
+}
+
+/* Right-side amount group: persistent "$" prefix + numeric input.
+   `margin-left: auto` pushes the whole group to the right edge of the
+   field so $ + number sit together near the wallet/percent column. */
+.amount-card__value {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 16px;
+  line-height: 1.3;
+  letter-spacing: 0.64px;
+}
+
+.amount-card__currency {
+  color: var(--text-primary);
+  flex-shrink: 0;
+}
+
+/* `field-sizing: content` makes the input only as wide as its value /
+   placeholder, so the "$" prefix stays right next to the number with
+   the 2px gap defined on the parent. */
+.amount-card__input {
+  field-sizing: content;
+  min-width: 4ch;
+  font: inherit;
+  letter-spacing: inherit;
+  color: var(--text-primary);
+  text-align: left;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+.amount-card__input::placeholder { color: var(--text-secondary); }
+.amount-card__input::-webkit-outer-spin-button,
+.amount-card__input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Percent preset buttons (25 / 50 / 75 / MAX) */
+.percent-group {
+  display: flex;
+  gap: 6px;
+}
+
+.percent-btn {
+  flex: 1;
+  padding: 6px 16px;
+  border-radius: 2px;
+  border: 0.6px solid var(--alpha-white-800);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--text-primary);
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.percent-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.percent-btn.is-active {
+  background: var(--alpha-white-700);
+  border-color: var(--alpha-white-800);
+}
+
+/* Inline validation message — only shows when amount-card.has-error.
+   Mirrors the settings-modal pattern: red border + red message, while
+   typed text and the USDC icon keep their normal colors. */
+.amount-card__error {
+  display: none;
+  margin: 0;
+  padding: 0 12px;
+  font-size: 13px;
+  line-height: 1.3;
+  color: var(--accent-red);
+}
+
+.amount-card.has-error .amount-card__error {
+  display: block;
+}
+
+.amount-card.has-error .amount-card__field {
+  border: 1px solid var(--accent-red);
+}
+
+/* =========================================================================
+   Leverage slider row (custom 5-stop slider + value pill)
+   ========================================================================= */
+.leverage-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.leverage-slider {
+  position: relative;
+  flex: 1;
+  height: 12px;
+  background: var(--alpha-white-900);
+  border-radius: 99px;
+  /* Drive fill width from JS via --pct (0..1). The thumb width offset
+     keeps the fill's right edge aligned with the thumb's right edge,
+     so there's no gap between fill and indicator at any value. */
+  --thumb-width: 14px;
+  --pct: 0;
+}
+
+/* Filled portion of the track. Width = thumb-width + pct of remaining
+   space, so the fill always reaches the thumb's *right edge* and gets
+   completely hidden behind the indicator with no rounded corner peek.
+   No CSS transition: any tween would lag behind the thumb on fast drags. */
+.leverage-slider__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: calc(var(--thumb-width) + var(--pct) * (100% - var(--thumb-width)));
+  background: var(--primary-300);
+  border-radius: 99px;
+}
+
+/* The 5 dim stop dots beneath the track. Spread evenly. */
+.leverage-slider__dots {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0;
+  pointer-events: none;
+}
+
+/* Stacked fill: alpha-white-800 (semi-transparent) over primary-special
+   base — gives the dot a dim, slightly lifted look against the track. */
+.leverage-slider__dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 99px;
+  background:
+    linear-gradient(var(--alpha-white-800), var(--alpha-white-800)),
+    var(--primary-special);
+}
+
+.leverage-slider__track { position: absolute; inset: 0; pointer-events: none; }
+
+/* Native range input sits transparently on top to capture interaction. */
+.leverage-slider__input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  outline: 0;
+  cursor: pointer;
+}
+.leverage-slider__input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--primary-300);
+  border: 2px solid #ffffff;
+  box-sizing: border-box;
+  cursor: grab;
+}
+.leverage-slider__input::-webkit-slider-thumb:active { cursor: grabbing; }
+.leverage-slider__input::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--primary-300);
+  outline: 2px solid #ffffff;
+  box-sizing: border-box;
+  cursor: grab;
+}
+
+/* Multiplier display next to the slider (e.g. "0.00 ×"). Defaults to
+   text-secondary; flips to text-primary once the slider has progressed
+   past zero (driven by `.is-active` from JS). Both the number and the
+   "×" suffix inherit color from this container. */
+.leverage-value {
+  position: relative;
+  width: 96px;
+  height: 45px;
+  padding: 12px;
+  background: var(--field-bg);
+  border-radius: 2px;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    inset 0 0 2px 1.5px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 16px;
+  letter-spacing: 0.64px;
+  line-height: 1.3;
+  color: var(--text-secondary);
+  transition: color 0.15s ease;
+}
+
+.leverage-value.is-active {
+  color: var(--text-primary);
+}
+
+/* =========================================================================
+   Summary list — Price impact / Average price / Liquidation / Reward
+   ========================================================================= */
+.summary {
+  margin: 0;
+  padding: 0 18px;
+  list-style: none;
+  background: var(--alpha-white-900);
+  border: 0.8px solid var(--alpha-white-800);
+  border-radius: 2px;
+}
+
+.summary__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 0;
+  font-size: 14px;
+  line-height: 1.1;
+}
+
+.summary__row--divider {
+  border-bottom: 0.8px solid var(--alpha-white-800);
+}
+
+.summary__label { color: var(--text-secondary); }
+.summary__label--bright { color: var(--text-primary); }
+
+.summary__value {
+  font-family: var(--font-mono);
+  letter-spacing: 0.56px;
+  color: var(--text-primary);
+}
+.summary__value--bright { color: var(--text-primary); }
+
+/* Network Fee row in the Exit panel — both sides drop to text-secondary
+   so the row reads as supporting detail rather than primary data. */
+.summary__row--muted .summary__label,
+.summary__row--muted .summary__value {
+  color: var(--text-secondary);
+}
+
+/* PnL value — green for profit, red for loss; class flipped from JS. */
+.summary__value--pnl { color: var(--accent-green); }
+.summary__value--pnl.is-loss { color: var(--accent-red); }
+
+/* =========================================================================
+   Health Factor card (ported from the deposit-modal exploration)
+   ========================================================================= */
+.hf {
+  background: var(--alpha-white-900);
+  border: 1px solid var(--alpha-white-800);
+  border-radius: 2px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow: clip;
+}
+
+.hf__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  white-space: nowrap;
+}
+
+.hf__label {
+  font-size: 14px;
+  line-height: 1.1;
+  color: var(--text-secondary);
+}
+
+.hf__delta {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  letter-spacing: 0.56px;
+  color: var(--accent-green);
+}
+.hf__before { color: var(--text-secondary); }
+.hf__arrow  { color: var(--accent-green); }
+
+/* Two halves form the bar: red on the left (HF < 1) and green on the
+   right (HF >= 1). The PNG art carries the gradient + texture. */
+.hf__bar-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hf__bar {
+  position: relative;
+  height: 10px;
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+}
+
+.hf__bar-half {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 10px;
+  border: 0.5px solid var(--alpha-white-900);
+  background-position: center;
+  background-size: cover;
+  box-shadow: inset 0 0 6px 0 rgba(255, 255, 255, 0.25);
+  border-radius: 8px;
+}
+
+.hf__bar-half--red {
+  background-image: url("assets/score-bar-red.png");
+  /* Dim the red half once HF >= 1 so the green half feels active. */
+  opacity: 0.5;
+}
+
+.hf__bar-half--green {
+  background-image: url("assets/score-bar-green.png");
+}
+
+/* The frosted indicator that slides along the bar based on HF. */
+.hf__indicator {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.5);
+  outline: 2px solid #ffffff;
+  transform: translate(-50%, -50%);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  transition: left 0.3s ease;
+}
+
+.hf__scale {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.36px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+/* =========================================================================
+   Close Position button — red-tinted variant of the action button
+   ========================================================================= */
+.close-btn {
+  position: relative;
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 2px;
+  background: rgba(225, 71, 71, 0.1);
+  overflow: hidden;
+  box-shadow:
+    0 2px 2px 0 rgba(0, 0, 0, 0.25),
+    inset 0 2px 2px 0 rgba(0, 0, 0, 0.1),
+    inset 0 0 0 1px rgba(225, 71, 71, 0.4);
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.close-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("assets/button-bg.png");
+  background-size: cover;
+  background-position: center;
+  opacity: 0.01;
+  pointer-events: none;
+}
+
+.close-btn__label {
+  position: relative;
+  z-index: 1;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--text-tertiary);
+}
+
+.close-btn:disabled { cursor: not-allowed; }
+
+/* Enabled state — solid accent-red fill with white label, layered inset
+   rings (white over red) and a top-down inner shadow for slight depth. */
+.close-btn:not(:disabled) {
+  background: var(--accent-red);
+  box-shadow:
+    0 2px 2px 0 rgba(0, 0, 0, 0.25),
+    inset 0 2px 2px 0 rgba(0, 0, 0, 0.1),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1),
+    inset 0 0 0 1px var(--accent-red);
+}
+.close-btn:not(:disabled) .close-btn__label { color: var(--text-primary); }
+
+/* Bump the pattern texture from near-invisible (0.01) to a visible 0.04
+   that matches the Figma `opacity-4` modifier. */
+.close-btn:not(:disabled)::before { opacity: 0.04; }
+
+.close-btn:not(:disabled):hover {
+  filter: brightness(1.06);
+  box-shadow:
+    0 4px 12px 0 rgba(0, 0, 0, 0.4),
+    inset 0 2px 2px 0 rgba(0, 0, 0, 0.1),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.18),
+    inset 0 0 0 1px var(--accent-red);
+}
+
+.close-btn:not(:disabled):active {
+  filter: brightness(0.94);
+}
+
+/* =========================================================================
+   Action button — disabled by default, enables once amount > 0
+   ========================================================================= */
+.action-btn {
+  position: relative;
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.25),
+    0 2px 2px 0 rgba(0, 0, 0, 0.25),
+    inset 0 -2px 4px 0 rgba(0, 0, 0, 0.1);
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.action-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("assets/button-bg.png");
+  background-size: cover;
+  background-position: center;
+  opacity: 0.02;
+  pointer-events: none;
+}
+
+.action-btn__label {
+  position: relative;
+  z-index: 1;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--text-tertiary);
+}
+
+.action-btn:disabled {
+  cursor: not-allowed;
+}
+
+/* Active state — turns into the bright white CTA from the deposit modal */
+.action-btn:not(:disabled) {
+  background: #ffffff;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.25),
+    0 2px 2px 0 rgba(0, 0, 0, 0.25),
+    inset 0 2px 4px 0 #ffffff,
+    inset 0 -2px 4px 0 rgba(0, 0, 0, 0.1);
+}
+.action-btn:not(:disabled) .action-btn__label { color: #00051c; }
+.action-btn:not(:disabled):hover {
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.6),
+    0 4px 12px 0 rgba(0, 0, 0, 0.4),
+    inset 0 3px 6px 0 #ffffff,
+    inset 0 -2px 4px 0 rgba(0, 0, 0, 0.08);
+}
+
+/* =========================================================================
+   Popup overlay (Confirmation + Success)
+   ========================================================================= */
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.popup-overlay.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.popup-overlay[hidden] { display: none; }
+
+.popup {
+  position: relative;
+  width: 460px;
+  max-width: 100%;
+  background: var(--base-special);
+  border: 1px solid var(--alpha-white-800);
+  border-radius: 6px;
+  box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transform: scale(0.97);
+  transition: transform 0.25s ease;
+}
+
+.popup-overlay.is-open .popup { transform: scale(1); }
+
+.popup__head {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  border-bottom: 1px solid var(--alpha-white-800);
+}
+
+.popup__title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 1;
+  color: var(--text-primary);
+}
+
+.popup__close {
+  position: absolute;
+  top: 50%;
+  right: 24px;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  color: var(--text-secondary);
+  transition: color 0.15s ease;
+}
+
+.popup__close:hover { color: var(--text-primary); }
+
+.popup__body {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding: 24px;
+}
+
+.popup__message {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.popup__actions { display: flex; gap: 8px; }
+
+/* Popup-scoped buttons (Cancel / Open Position / Done). Primary is the
+   bright white CTA; secondary is dark with white outline (Cancel). */
+.popup-btn {
+  flex: 1;
+  padding: 10px 16px;
+  border-radius: 2px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  border: 0;
+  cursor: pointer;
+  transition: filter 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.popup-btn--secondary {
+  background: var(--foreground-primary);
+  background-image: linear-gradient(
+    to bottom,
+    rgba(7, 14, 29, 0) 0%,
+    rgba(7, 14, 29, 0.6) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: var(--text-primary);
+}
+
+.popup-btn--secondary:hover {
+  background-color: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.55);
+}
+
+.popup-btn--primary {
+  background: #ffffff;
+  color: var(--text-brand);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.25),
+    0 2px 2px 0 rgba(0, 0, 0, 0.25),
+    inset 0 2px 4px 0 #ffffff,
+    inset 0 -2px 4px 0 rgba(0, 0, 0, 0.1);
+}
+
+.popup-btn--primary:hover {
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.6),
+    0 4px 12px 0 rgba(0, 0, 0, 0.4),
+    inset 0 3px 6px 0 #ffffff,
+    inset 0 -2px 4px 0 rgba(0, 0, 0, 0.08);
+}
+
+/* =========================================================================
+   Success popup variant
+   ========================================================================= */
+.popup--success {
+  /* Wider than the default popup so two summary cards with horizontal
+     label/value rows fit side-by-side without cramping the values. */
+  width: 720px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.popup--success .popup__close {
+  top: 19px;
+  right: 19px;
+  transform: none;
+}
+
+.success-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.success-hero__ring {
+  width: 84px;
+  height: 84px;
+  display: grid;
+  place-items: center;
+  background: var(--primary-special);
+  border: 1px dashed var(--alpha-white-800);
+  border-radius: 999px;
+}
+
+.success-hero__copy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.success-hero__title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 1;
+  color: var(--text-primary);
+}
+
+.success-hero__desc {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
+
+/* Two summary cards stacked, each with its own border/background. */
+/* Two cards side-by-side with a 16px gap. Each card is flex:1 so they
+   share the popup's inner width equally. */
+.success-cards {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+}
+
+.success-card {
+  margin: 0;
+  padding: 0 18px;
+  list-style: none;
+  background: var(--alpha-white-900);
+  border: 0.8px solid var(--alpha-white-800);
+  border-radius: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Row matches the Figma summary spec: 160px-fixed label column, 24px gap,
+   value following. 18px vertical padding on each side, bottom border on
+   every row except the last. Long values truncate with ellipsis. */
+.success-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 24px;
+  padding: 18px 0;
+  border-bottom: 0.8px solid var(--alpha-white-800);
+}
+
+.success-row:last-child { border-bottom: 0; }
+
+.success-row__label {
+  flex-shrink: 0;
+  width: 120px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
+
+.success-row__value {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  letter-spacing: 0.56px;
+  line-height: 1.1;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.success-row__value--bright { font-weight: 500; }
+
+/* Value-level color modifiers — used on the Realized PnL row in exit
+   success so the value flips green/red based on profit/loss without
+   recolouring the label. */
+.success-row__value--profit { color: var(--accent-green); }
+.success-row__value--loss   { color: var(--accent-red); }
+
+/* Link-style value (used for Market) — Inter sans, not mono; underlined
+   text with a small arrow-up-left icon. Overrides the mono/uppercase
+   defaults from .success-row__value. */
+.success-row__value--link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-sans);
+  letter-spacing: 0;
+  text-transform: none;
+  text-overflow: clip;       /* ellipsis lives on the inner text span */
+}
+
+.success-row__icon {
+  flex-shrink: 0;
+  color: var(--text-primary);
+}
+
+.success-row__link-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-decoration: underline;
+}
+
+/* Row-level accent — paints both the label and the value accent-green
+   (used for the Estimated Reward row). Higher specificity than the
+   default colours on label/value so this wins. */
+.success-row--accent .success-row__label,
+.success-row--accent .success-row__value { color: var(--accent-green); }
+
+/* =========================================================================
+   Success icon animation — circle draws → check draws → bounce.
+   Same timing as the deposit-modal / settings-modal explorations.
+   ========================================================================= */
+.success-icon__circle {
+  stroke-dasharray: 88;
+  stroke-dashoffset: 88;
+}
+
+.success-icon__check {
+  stroke-dasharray: 20;
+  stroke-dashoffset: 20;
+}
+
+#success-overlay.is-open .success-icon__circle {
+  animation: success-draw-circle 0.4s ease-out forwards;
+}
+
+#success-overlay.is-open .success-icon__check {
+  animation: success-draw-check 0.3s ease-out 0.35s forwards;
+}
+
+#success-overlay.is-open .success-hero__ring > svg {
+  animation: success-icon-bounce 0.5s ease-out 0.65s;
+  transform-origin: center center;
+}
+
+@keyframes success-draw-circle { to { stroke-dashoffset: 0; } }
+@keyframes success-draw-check  { to { stroke-dashoffset: 0; } }
+
+@keyframes success-icon-bounce {
+  0%   { transform: scale(1); }
+  25%  { transform: scale(1.22); }
+  50%  { transform: scale(0.9); }
+  72%  { transform: scale(1.08); }
+  88%  { transform: scale(0.97); }
+  100% { transform: scale(1); }
+}
